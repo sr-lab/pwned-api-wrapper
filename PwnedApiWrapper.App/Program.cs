@@ -96,7 +96,7 @@ namespace PwnedApiWrapper.App
                 {
                     if (!first)
                     {
-                        output.Append(",");
+                        output.Append(";");
                         output.AppendLine();
                     }
                     output.Append($"  (\"{entry.Key}\", {entry.Value} # 1)");
