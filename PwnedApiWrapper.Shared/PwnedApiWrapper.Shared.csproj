@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{98FAD44D-BA73-402A-B1CC-B82E05828B79}</ProjectGuid>
+    <ProjectGuid>{34DF01FC-8D0E-46AE-8E80-D228489A5F0C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PwnedApiWrapper</RootNamespace>
-    <AssemblyName>PwnedApiWrapper</AssemblyName>
+    <RootNamespace>PwnedApiWrapper.Shared</RootNamespace>
+    <AssemblyName>PwnedApiWrapper.Shared</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -40,14 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PwnedPasswordsClient.cs" />
+    <Compile Include="CryptoUtils.cs" />
+    <Compile Include="FileUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\PwnedApiWrapper.Shared\PwnedApiWrapper.Shared.csproj">
-      <Project>{34df01fc-8d0e-46ae-8e80-d228489a5f0c}</Project>
-      <Name>PwnedApiWrapper.Shared</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

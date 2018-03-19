@@ -54,6 +54,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\PwnedApiWrapper.Shared\PwnedApiWrapper.Shared.csproj">
+      <Project>{34df01fc-8d0e-46ae-8e80-d228489a5f0c}</Project>
+      <Name>PwnedApiWrapper.Shared</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PwnedApiWrapper\PwnedApiWrapper.csproj">
       <Project>{98fad44d-ba73-402a-b1cc-b82e05828b79}</Project>
       <Name>PwnedApiWrapper</Name>

@@ -6,67 +6,40 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PwnedApiWrapper.App
+namespace PwnedApiWrapper.Local
 {
     class Program
     {
-        /// <summary>
-        /// The base URL of the API to query. You probably shouldn't change this.
-        /// </summary>
-        private const string ApiUrl = "https://api.pwnedpasswords.com";
-
-        /// <summary>
-        /// The threshold number of passwords at which to warn the user about API usage.
-        /// </summary>
-        private const int WarnSizeLimit = 50;
-
         static void Main(string[] args)
         {
             // Check number of arguments.
-            if (args.Length < 1)
+            if (args.Length < 2)
             {
-                Console.WriteLine("Usage: App <password_list> [format]");
+                Console.WriteLine("Usage: App <password_list> <pwned_passwords_corpus> [format]");
                 return;
             }
 
             // Check file exists.
-            if (!File.Exists(args[0]))
+            if (!File.Exists(args[0]) || !File.Exists(args[1]))
             {
-                Console.WriteLine("Could not read input file.");
+                Console.WriteLine("Could not read one or more input file.");
                 return;
             }
 
             // Validate format, default to plain.
             var format = "plain";
             var permittedFormats = new string[] { "plain", "coq" };
-            if (args.Length > 1 && permittedFormats.Contains(args[1]))
+            if (args.Length > 2 && permittedFormats.Contains(args[2]))
             {
-                format = args[1];
+                format = args[2];
             }
 
-            // Read password list. Warn if very long.
+            // Read password list.
             var passwords = FileUtils.ReadFileAsLines(args[0]);
-            if (passwords.Length > WarnSizeLimit)
-            {
-                Console.WriteLine($"You're about to throw more than {WarnSizeLimit} passwords at the API at {ApiUrl}. Continue? (Y/n)");
-                if (Console.ReadKey(true).Key != ConsoleKey.Y)
-                {
-                    Console.WriteLine("Aborting...");
-                    return;
-                }
-            }
-
-            // Initialize client and do the work.
-            var client = new PwnedPasswordsClient(ApiUrl);
-            var results = new Dictionary<string, int>();
-            for (var i = 0; i < passwords.Length; i++)
-            {
-                var appearances = client.GetNumberOfAppearances(passwords[i]);
-                results.Add(passwords[i], appearances);
-
-                // Give status to user.
-                Console.WriteLine($"Password {passwords[i]} found {appearances} times!");
-            }
+            
+            // Query file.
+            var service = new PwnedFileWrapper(args[1]);
+            var results = service.Lookup(passwords);
 
             // Plain output goes straight to console.
             if (format == "plain")
