@@ -37,7 +37,11 @@ namespace PwnedApiWrapper.Local
             var output = new Dictionary<string, string>();
             for (int i = 0; i < passwords.Length; i++)
             {
-                output.Add(CryptoUtils.Sha1(passwords[i], lower), passwords[i]);
+                var hash = CryptoUtils.Sha1(passwords[i], lower);
+                if (!output.ContainsKey(hash))
+                {
+                    output.Add(CryptoUtils.Sha1(passwords[i], lower), passwords[i]);
+                }
             }
             return output;
         }
@@ -56,7 +60,10 @@ namespace PwnedApiWrapper.Local
             var output = new Dictionary<string, int>();
             for (int i = 0; i < passwords.Length; i++)
             {
-                output.Add(passwords[i], 0);
+                if (!output.ContainsKey(passwords[i]))
+                {
+                    output.Add(passwords[i], 0);
+                }
             }
 
             // Read file one line at a time, has to be buffered, file too big otherwise.
