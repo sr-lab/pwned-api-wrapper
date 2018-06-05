@@ -85,5 +85,15 @@ namespace PwnedApiWrapper.Local
             }
             return output;
         }
+
+        /// <summary>
+        /// Looks up a password in the file.
+        /// </summary>
+        /// <param name="password">The password to look up.</param>
+        /// <returns>The password count.</returns>
+        public int LookupSingle(string password)
+        {
+            return Lookup(new[] { password })[password];
+        }
     }
 }

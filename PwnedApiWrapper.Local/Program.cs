@@ -16,6 +16,29 @@ namespace PwnedApiWrapper.Local
             if (args.Length < 2)
             {
                 Console.WriteLine("Usage: App <password_list> <pwned_passwords_corpus> [format]");
+                Console.WriteLine("Or");
+                Console.WriteLine("Usage: App -i <pwned_passwords_corpus>");
+                return;
+            }
+
+            // Interactive mode.
+            if (args.Length == 2 && args[0] == "-i" && File.Exists(args[1]))
+            {
+                var interactiveService = new PwnedFileWrapper(args[1]);
+                Console.WriteLine("Pwned Passwords Explorer: Interactive Mode");
+                var buffer = "";
+                do
+                {
+                    // Prompt for password.
+                    Console.Write("query>");
+                    buffer = Console.ReadLine();
+
+                    // Output result.
+                    Console.WriteLine(interactiveService.LookupSingle(buffer) + " occurrences found.");
+                } while (buffer != "exit"); // Read until exit.
+                
+                // Say goodbye and quit.
+                Console.WriteLine("Bye!");
                 return;
             }
 
