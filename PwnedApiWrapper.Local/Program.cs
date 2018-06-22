@@ -70,7 +70,7 @@ namespace PwnedApiWrapper.Local
                 Console.WriteLine("password, appearances");
                 foreach (var entry in results)
                 {
-                    Console.WriteLine($"{entry.Key}, {entry.Value}");
+                    Console.WriteLine($"\"{entry.Key.Replace("\"", "\"\"")}\", {entry.Value}");
                 }
             }
             else if (format == "coq")
