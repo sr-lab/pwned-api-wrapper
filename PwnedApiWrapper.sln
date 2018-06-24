@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PwnedApiWrapper.Local", "Pw
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PwnedApiWrapper.Shared", "PwnedApiWrapper.Shared\PwnedApiWrapper.Shared.csproj", "{34DF01FC-8D0E-46AE-8E80-D228489A5F0C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PwnedApiWrapper.FrequencyExtractor", "PwnedApiWrapper.FrequencyExtractor\PwnedApiWrapper.FrequencyExtractor.csproj", "{4B2A8242-E846-464E-A86B-F1C9B11A9DB3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{34DF01FC-8D0E-46AE-8E80-D228489A5F0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{34DF01FC-8D0E-46AE-8E80-D228489A5F0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{34DF01FC-8D0E-46AE-8E80-D228489A5F0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B2A8242-E846-464E-A86B-F1C9B11A9DB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B2A8242-E846-464E-A86B-F1C9B11A9DB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B2A8242-E846-464E-A86B-F1C9B11A9DB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B2A8242-E846-464E-A86B-F1C9B11A9DB3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E8DB00E0-8F03-460F-8DD7-79C79F0831A3}</ProjectGuid>
+    <ProjectGuid>{4B2A8242-E846-464E-A86B-F1C9B11A9DB3}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>PwnedApiWrapper.Local</RootNamespace>
-    <AssemblyName>PwnedApiWrapper.Local</AssemblyName>
+    <RootNamespace>PwnedApiWrapper.FrequencyExtractor</RootNamespace>
+    <AssemblyName>PwnedApiWrapper.FrequencyExtractor</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -44,12 +44,7 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="PwnedFileWrapper.cs" />
+    <Compile Include="FrequencyExtractorWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -59,15 +54,6 @@
       <Project>{34df01fc-8d0e-46ae-8e80-d228489a5f0c}</Project>
       <Name>PwnedApiWrapper.Shared</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\coq_template.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
