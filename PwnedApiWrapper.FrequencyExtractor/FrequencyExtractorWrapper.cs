@@ -1,10 +1,7 @@
-﻿using PwnedApiWrapper.Shared;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace PwnedApiWrapper.FrequencyExtractor
 {
@@ -30,7 +27,7 @@ namespace PwnedApiWrapper.FrequencyExtractor
         /// Pulls all frequencies from the file above a limit.
         /// </summary>
         /// <param name="limit">The lower limit of frequencies to extract.</param>
-        /// <returns>A dictionary of passwords against counts.</returns>
+        /// <returns>A list of frequencies.</returns>
         public List<int> Pull(int limit)
         {
             // Prepare output dictionary.
@@ -56,6 +53,20 @@ namespace PwnedApiWrapper.FrequencyExtractor
                 }
             }
             return output;
+        }
+
+        /// <summary>
+        /// Returns the largest frequencies.
+        /// </summary>
+        /// <param name="count">The number of frequencies to return.</param>
+        /// <returns>A list of frequencies.</returns>
+        public List<int> PullTop(int count)
+        {
+            // Get all, sort and take.
+            return Pull(int.MaxValue)
+                .OrderByDescending(x => x)
+                .Take(count)
+                .ToList();
         }
     }
 }

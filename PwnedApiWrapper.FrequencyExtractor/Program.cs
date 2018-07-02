@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PwnedApiWrapper.Shared;
 
 namespace PwnedApiWrapper.FrequencyExtractor
 {
@@ -19,11 +14,18 @@ namespace PwnedApiWrapper.FrequencyExtractor
                 return;
             }
 
-            // Check file exists.
+            // Check limit parses as an integer.
             var limit = -1;
-            if (!int.TryParse(args[0], out limit) || !File.Exists(args[1]))
+            if (!int.TryParse(args[0], out limit))
             {
-                Console.WriteLine("Invalid arguments.");
+                Console.WriteLine("Invalid limit provided.");
+                return;
+            }
+
+            // Check file exists.
+            if (!File.Exists(args[1]))
+            {
+                Console.WriteLine("Could not read input file.");
                 return;
             }
 
