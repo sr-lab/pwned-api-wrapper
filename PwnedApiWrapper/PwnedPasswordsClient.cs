@@ -86,33 +86,5 @@ namespace PwnedApiWrapper
             var results = GetRange(prefix);
             return results.ContainsKey(suffix) ? results[suffix] : 0;
         }
-
-        /// <summary>
-        /// Gets the number of times the given password appears according to the service.
-        /// </summary>
-        /// <param name="password">The password to look up.</param>
-        /// <returns></returns>
-        [Obsolete("This method is to be removed in a future version of the API. Use GetNumberOfAppearances instead.")]
-        public int GetNumberOfAppearancesUsingEndpoint(string password)
-        {
-            try
-            {
-                // Download number of occurences.
-                var response = client.DownloadString($"{BaseUrl}/pwnedpassword/{Uri.EscapeDataString(password)}");
-                return int.Parse(response);
-            }
-            catch (WebException ex)
-            {
-                if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
-                {
-                    var response = ex.Response as HttpWebResponse;
-                    if (response.StatusCode == HttpStatusCode.NotFound)
-                    {
-                        return 0; // We get a 404 if the password was not found.
-                    }
-                }
-                throw; // There was some other exception. Throw it.
-            }
-        }
     }
 }
