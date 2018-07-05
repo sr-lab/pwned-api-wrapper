@@ -10,7 +10,7 @@ namespace PwnedApiWrapper
     /// <summary>
     /// Represents a Pwned Passwords API client.
     /// </summary>
-    public class PwnedPasswordsClient : IPwnedPasswordsClient
+    public class PwnedPasswordsApiClient : IPwnedPasswordsClient
     {
         /// <summary>
         /// The base URL the API is located at.
@@ -26,7 +26,7 @@ namespace PwnedApiWrapper
         /// Initializes a new instance of a Pwned Passwords API client.
         /// </summary>
         /// <param name="baseUrl">The base URL of the API.</param>
-        public PwnedPasswordsClient(string baseUrl)
+        public PwnedPasswordsApiClient(string baseUrl)
         {
             BaseUrl = baseUrl + (baseUrl.EndsWith("/") ? "" : "/"); // Append trailing slash if needed.
             client = new WebClient();
