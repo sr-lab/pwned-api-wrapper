@@ -1,18 +1,16 @@
-﻿using PwnedApiWrapper.Shared;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
+
+using PwnedApiWrapper.Shared;
 
 namespace PwnedApiWrapper
 {
     /// <summary>
     /// Represents a Pwned Passwords API client.
     /// </summary>
-    public class PwnedPasswordsClient
+    public class PwnedPasswordsClient : IPwnedPasswordsClient
     {
         /// <summary>
         /// The base URL the API is located at.
@@ -43,14 +41,15 @@ namespace PwnedApiWrapper
         {
             return str.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="hashPrefix"></param>
-        /// <returns></returns>
+        
         public Dictionary<string, int> GetRange(string hashPrefix)
         {
+            // Check argument.
+            if (hashPrefix.Length != 5)
+            {
+                throw new ArgumentException($"Hash prefix provided must be of length 5, length {hashPrefix.Length} given.");
+            }
+
             // Download range.
             var response = client.DownloadString($"{BaseUrl}/range/{hashPrefix}");
 
@@ -70,11 +69,6 @@ namespace PwnedApiWrapper
             return output;
         }
 
-        /// <summary>
-        /// Gets the number of times the given password appears according to the service.
-        /// </summary>
-        /// <param name="password">The password to look up.</param>
-        /// <returns></returns>
         public int GetNumberOfAppearances(string password)
         {
             // Compute hash, prefix and suffix.
@@ -85,6 +79,12 @@ namespace PwnedApiWrapper
             // Get result from returned range.
             var results = GetRange(prefix);
             return results.ContainsKey(suffix) ? results[suffix] : 0;
+        }
+
+        public Dictionary<string, int> GetNumberOfAppearancesForAll(IEnumerable<string> passwords)
+        {
+            // Query for each password in the collection.
+            return passwords.ToDictionary(x => x, x => GetNumberOfAppearances(x));
         }
     }
 }
