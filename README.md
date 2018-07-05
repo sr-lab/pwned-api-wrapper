@@ -34,10 +34,31 @@ Specifying a file containing a newline-delimited list of passwords and either `p
 A command-line application that will just extract frequencies from the local data file for you (after you torrent it of course) without any regard for hashes etc. Useful for building statistical models of password frequencies when we don't necessarily care about the passwords themselves. Use it like so:
 
 ```
-PwnedApiWrapper.FrequencyExtractor.exe 1000 pwned_passwords.txt
+PwnedApiWrapper.FrequencyExtractor.exe 1000 pwned-passwords-2.0.txt
 ```
 
 Patience is a virtue here. That text file is over 30GB at the time of writing and it'll take a while to go through. Code has been designed not to wreck your RAM too hard by trying to load the whole thing into memory. The example above extracts all frequencies above 1000 from the corpus and returns them in a newline-delimited file, sorted descending.
+
+### PwnedApiWrapper.Local
+A command-line application that works in the same way as `PwnedApiWrapper.App` but queries a a local version of Pwned Passwords instead. It won't work with the Pwned Passwords archive (a `*.7z` file) so you'll need to extract it first. Use it like so once you have the text file extracted:
+
+```
+PwnedApiWrapper.Local.exe passwords.txt pwned-passwords-2.0.txt plain
+```
+
+Where `passwords.txt` is the newline-delimited file containing passwords to grab frequencies for. Once again, this might take a while. The utility also supports "interactive mode", which brings up a prompt to get password frequencies one at a time:
+
+```
+PwnedApiWrapper.Local.exe -i pwned-passwords-2.0.txt
+```
+
+This will bring up a prompt for a password to search for, like so:
+
+```
+query> 
+```
+
+Enter the password you want to grab the frequency for, hit enter and be patient (we've got over 30GB of file to trawl).
 
 ## Building
 The utility is written in C#, just build it like any other Visual Studio project.
