@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 using PwnedApiWrapper.Shared;
 
-namespace PwnedApiWrapper.Local
+namespace PwnedApiWrapper
 {
     /// <summary>
-    /// Represents a wrapper around the Pwned Passwords corpus file.
+    /// A Pwned Passwords client that makes use of a local database file.
     /// </summary>
-    class PwnedFileWrapper
+    public class LocalFilePwnedClient : IPwnedClient
     {
         /// <summary>
         /// Gets the path this class is wrapping.
@@ -19,7 +20,7 @@ namespace PwnedApiWrapper.Local
         /// <summary>
         /// Initialises a new instance of a wrapper around the Pwned Passwords corpus file.
         /// </summary>
-        public PwnedFileWrapper(string path)
+        public LocalFilePwnedClient(string path)
         {
             Path = path;
         }
@@ -30,37 +31,29 @@ namespace PwnedApiWrapper.Local
         /// <param name="passwords">The passwords to compute hashes for.</param>
         /// <param name="lower">Whether or not to compute lowercase hashes.</param>
         /// <returns>A dictionary of password hashes against plaintext passwords.</returns>
-        private static Dictionary<string, string> Sha1Many(string[] passwords, bool lower = false)
+        private static Dictionary<string, string> Sha1Many(IEnumerable<string> passwords, bool lower = false)
         {
-            var output = new Dictionary<string, string>();
-            for (int i = 0; i < passwords.Length; i++)
-            {
-                var hash = CryptoUtils.Sha1(passwords[i], lower);
-                if (!output.ContainsKey(hash))
-                {
-                    output.Add(CryptoUtils.Sha1(passwords[i], lower), passwords[i]);
-                }
-            }
-            return output;
+            return passwords.ToDictionary(x => x, x => CryptoUtils.Sha1(x, lower));
         }
 
-        /// <summary>
-        /// Looks up an array of passwords in the file, in one pass.
-        /// </summary>
-        /// <param name="passwords">The passwords to look up.</param>
-        /// <returns>A dictionary of passwords against counts.</returns>
-        public Dictionary<string, int> Lookup(string[] passwords)
+        public int GetNumberOfAppearances(string password)
+        {
+            // More efficient in this case to pass single password out to many-password method.
+            return GetNumberOfAppearancesForAll(new[] { password })[password];
+        }
+
+        public Dictionary<string, int> GetNumberOfAppearancesForAll(IEnumerable<string> passwords)
         {
             // Pre-hash passwords.
             var hashes = Sha1Many(passwords);
 
             // Prepare output dictionary.
             var output = new Dictionary<string, int>();
-            for (int i = 0; i < passwords.Length; i++)
+            foreach (var password in passwords)
             {
-                if (!output.ContainsKey(passwords[i]))
+                if (!output.ContainsKey(password))
                 {
-                    output.Add(passwords[i], 0);
+                    output.Add(password, 0);
                 }
             }
 
@@ -82,16 +75,6 @@ namespace PwnedApiWrapper.Local
                 }
             }
             return output;
-        }
-
-        /// <summary>
-        /// Looks up a password in the file.
-        /// </summary>
-        /// <param name="password">The password to look up.</param>
-        /// <returns>The password count.</returns>
-        public int LookupSingle(string password)
-        {
-            return Lookup(new[] { password })[password];
         }
     }
 }

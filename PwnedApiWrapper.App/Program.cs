@@ -57,7 +57,7 @@ namespace PwnedApiWrapper.App
             }
 
             // Initialize client and do the work.
-            var client = new PwnedPasswordsApiClient(ApiUrl);
+            var client = new ApiPwnedClient(ApiUrl);
             var results = new Dictionary<string, int>();
             for (var i = 0; i < passwords.Length; i++)
             {

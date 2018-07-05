@@ -40,8 +40,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IPwnedPasswordsClient.cs" />
-    <Compile Include="PwnedPasswordsApiClient.cs" />
+    <Compile Include="IPwnedFrequencyExtractor.cs" />
+    <Compile Include="LocalFilePwnedFrequencyExtractor.cs" />
+    <Compile Include="IPwnedClient.cs" />
+    <Compile Include="LocalFilePwnedClient.cs" />
+    <Compile Include="ApiPwnedClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

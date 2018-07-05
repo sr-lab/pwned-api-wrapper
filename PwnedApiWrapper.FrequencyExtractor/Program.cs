@@ -30,8 +30,8 @@ namespace PwnedApiWrapper.FrequencyExtractor
             }
 
             // Query file.
-            var service = new FrequencyExtractorWrapper(args[1]);
-            var results = service.Pull(limit);
+            IPwnedFrequencyExtractor service = new LocalFilePwnedFrequencyExtractor(args[1]);
+            var results = service.GetAbove(limit);
 
             // Output goes straight to console.
             foreach (var entry in results)

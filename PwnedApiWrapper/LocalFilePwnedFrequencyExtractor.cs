@@ -3,12 +3,12 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace PwnedApiWrapper.FrequencyExtractor
+namespace PwnedApiWrapper
 {
     /// <summary>
-    /// Represents a wrapper around the Pwned Passwords corpus file for extracting frequencies only.
+    /// A Pwned Passwords client that makes use of a local database file for extracting frequencies only.
     /// </summary>
-    class FrequencyExtractorWrapper
+    public class LocalFilePwnedFrequencyExtractor : IPwnedFrequencyExtractor
     {
         /// <summary>
         /// Gets the path this class is wrapping.
@@ -16,19 +16,14 @@ namespace PwnedApiWrapper.FrequencyExtractor
         public string Path { get; private set; }
 
         /// <summary>
-        /// Initialises a new instance of a wrapper around the Pwned Passwords corpus file for extracting frequencies only.
+        /// Initialises a new instance of a Pwned Passwords client that makes use of a local database file for extracting frequencies only.
         /// </summary>
-        public FrequencyExtractorWrapper(string path)
+        public LocalFilePwnedFrequencyExtractor(string path)
         {
             Path = path;
         }
-
-        /// <summary>
-        /// Pulls all frequencies from the file above a limit.
-        /// </summary>
-        /// <param name="limit">The lower limit of frequencies to extract.</param>
-        /// <returns>A list of frequencies.</returns>
-        public List<int> Pull(int limit)
+        
+        public IList<int> GetAbove(int limit)
         {
             // Prepare output dictionary.
             var output = new List<int>();
@@ -46,7 +41,7 @@ namespace PwnedApiWrapper.FrequencyExtractor
 
                     // Add count to output if above limit.
                     var x = int.Parse(splitter[1]);
-                    if (x >= limit)
+                    if (x > limit)
                     {
                         output.Add(x);
                     }
@@ -54,16 +49,11 @@ namespace PwnedApiWrapper.FrequencyExtractor
             }
             return output;
         }
-
-        /// <summary>
-        /// Returns the largest frequencies.
-        /// </summary>
-        /// <param name="count">The number of frequencies to return.</param>
-        /// <returns>A list of frequencies.</returns>
-        public List<int> PullTop(int count)
+        
+        public IList<int> GetTop(int count)
         {
             // Get all, sort and take.
-            return Pull(int.MaxValue)
+            return GetAbove(int.MinValue)
                 .OrderByDescending(x => x)
                 .Take(count)
                 .ToList();

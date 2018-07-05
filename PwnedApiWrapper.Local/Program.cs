@@ -24,7 +24,7 @@ namespace PwnedApiWrapper.Local
             // Interactive mode.
             if (args.Length == 2 && args[0] == "-i" && File.Exists(args[1]))
             {
-                var interactiveService = new PwnedFileWrapper(args[1]);
+                var interactiveService = new LocalFilePwnedClient(args[1]);
                 Console.WriteLine("Pwned Passwords Explorer: Interactive Mode");
                 var buffer = "";
                 do
@@ -34,7 +34,7 @@ namespace PwnedApiWrapper.Local
                     buffer = Console.ReadLine();
 
                     // Output result.
-                    Console.WriteLine(interactiveService.LookupSingle(buffer) + " occurrences found.");
+                    Console.WriteLine(interactiveService.GetNumberOfAppearances(buffer) + " occurrences found.");
                 } while (buffer != "exit"); // Read until exit.
                 
                 // Say goodbye and quit.
@@ -61,8 +61,8 @@ namespace PwnedApiWrapper.Local
             var passwords = FileUtils.ReadFileAsLines(args[0]);
             
             // Query file.
-            var service = new PwnedFileWrapper(args[1]);
-            var results = service.Lookup(passwords);
+            var service = new LocalFilePwnedClient(args[1]);
+            var results = service.GetNumberOfAppearancesForAll(passwords);
 
             // Plain output goes straight to console.
             if (format == "plain")

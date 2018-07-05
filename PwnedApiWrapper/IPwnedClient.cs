@@ -5,15 +5,8 @@ namespace PwnedApiWrapper
     /// <summary>
     /// Represents some service capable of querying Pwned Passwords.
     /// </summary>
-    interface IPwnedPasswordsClient
+    public interface IPwnedClient
     {
-        /// <summary>
-        /// Gets the range of hashes with the given prefix.
-        /// </summary>
-        /// <param name="hashPrefix">The hash prefix to search.</param>
-        /// <returns></returns>
-        Dictionary<string, int> GetRange(string hashPrefix);
-
         /// <summary>
         /// Gets the number of times the given password appears according to the service.
         /// </summary>

@@ -8,12 +8,12 @@ using PwnedApiWrapper.Shared;
 namespace PwnedApiWrapper
 {
     /// <summary>
-    /// Represents a Pwned Passwords API client.
+    /// A Pwned Passwords client that makes use of the official API over HTTP.
     /// </summary>
-    public class PwnedPasswordsApiClient : IPwnedPasswordsClient
+    public class ApiPwnedClient : IPwnedClient
     {
         /// <summary>
-        /// The base URL the API is located at.
+        /// Gets the base URL the API is located at.
         /// </summary>
         public string BaseUrl { get; private set; }
 
@@ -26,7 +26,7 @@ namespace PwnedApiWrapper
         /// Initializes a new instance of a Pwned Passwords API client.
         /// </summary>
         /// <param name="baseUrl">The base URL of the API.</param>
-        public PwnedPasswordsApiClient(string baseUrl)
+        public ApiPwnedClient(string baseUrl)
         {
             BaseUrl = baseUrl + (baseUrl.EndsWith("/") ? "" : "/"); // Append trailing slash if needed.
             client = new WebClient();
@@ -41,8 +41,13 @@ namespace PwnedApiWrapper
         {
             return str.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
         }
-        
-        public Dictionary<string, int> GetRange(string hashPrefix)
+
+        /// <summary>
+        /// Gets the range of hashes with the given prefix.
+        /// </summary>
+        /// <param name="hashPrefix">The hash prefix to search.</param>
+        /// <returns></returns>
+        private Dictionary<string, int> GetRange(string hashPrefix)
         {
             // Check argument.
             if (hashPrefix.Length != 5)
