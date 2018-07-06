@@ -33,7 +33,7 @@ namespace PwnedApiWrapper
         /// <returns>A dictionary of password hashes against plaintext passwords.</returns>
         private static Dictionary<string, string> Sha1Many(IEnumerable<string> passwords, bool lower = false)
         {
-            return passwords.ToDictionary(x => x, x => CryptoUtils.Sha1(x, lower));
+            return passwords.ToDictionary(x => CryptoUtils.Sha1(x, lower), x => x);
         }
 
         public int GetNumberOfAppearances(string password)
@@ -44,12 +44,16 @@ namespace PwnedApiWrapper
 
         public Dictionary<string, int> GetNumberOfAppearancesForAll(IEnumerable<string> passwords)
         {
+            // Deduplicate and create cloned list for optimisation.
+            var distinct = passwords.Distinct();
+            var remaining = new List<string>(distinct);
+
             // Pre-hash passwords.
-            var hashes = Sha1Many(passwords);
+            var hashes = Sha1Many(distinct);
 
             // Prepare output dictionary.
             var output = new Dictionary<string, int>();
-            foreach (var password in passwords)
+            foreach (var password in distinct)
             {
                 if (!output.ContainsKey(password))
                 {
@@ -70,11 +74,24 @@ namespace PwnedApiWrapper
                     if (splitter.Length == 2 && hashes.ContainsKey(splitter[0]))
                     {
                         // Add count to output if found.
-                        output[hashes[splitter[0]]] = int.Parse(splitter[1]);
+                        var plaintext = hashes[splitter[0]];
+                        output[plaintext] = int.Parse(splitter[1]);
+
+                        // Optimisation to break out if we've found all passwords.
+                        remaining.Remove(plaintext);
+                        if (remaining.Count == 0)
+                        {
+                            break;
+                        }
                     }
                 }
             }
             return output;
+        }
+
+        public string GetInteractiveModePrompt()
+        {
+            return $"LocalFile@{Path}";
         }
     }
 }

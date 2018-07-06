@@ -72,5 +72,8 @@
   <ItemGroup>
     <None Include="Resources\coq_template.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\help_card.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
