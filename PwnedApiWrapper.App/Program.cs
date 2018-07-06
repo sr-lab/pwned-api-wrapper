@@ -91,10 +91,8 @@ namespace PwnedApiWrapper.App
             }
         }
 
-        private static void InteractiveApiMode(string[] args)
+        private static void LaunchInteractiveMode(IPwnedClient client, string[] args)
         {
-            var interactiveService = new ApiPwnedClient(ApiUrl);
-            Console.WriteLine("Pwned Passwords Explorer: Interactive/API Mode");
             string buffer;
             do
             {
@@ -103,20 +101,52 @@ namespace PwnedApiWrapper.App
                 buffer = Console.ReadLine();
 
                 // Output result.
-                Console.WriteLine(interactiveService.GetNumberOfAppearances(buffer) + " occurrences found.");
+                Console.WriteLine(client.GetNumberOfAppearances(buffer) + " occurrences found.");
             } while (buffer != "exit"); // Read until exit.
 
             // Say goodbye and quit.
             Console.WriteLine("Bye!");
         }
 
+        private static void InteractiveApiMode(string[] args)
+        {
+            // Launch interactive mode.
+            Console.WriteLine("Pwned Passwords Explorer: Interactive/API Mode");
+            LaunchInteractiveMode(new ApiPwnedClient(ApiUrl), args);
+        }
+
         private static void InteractiveFileMode(string[] args)
         {
+            // Check database file path was passed.
+            if (args.Length < 4)
+            {
+                Console.WriteLine("Pwned Passwords database file must be specified.");
+                return;
+            }
+
+            // Check file exists.
+            var pwnedFilename = args[3];
+            if (!File.Exists(pwnedFilename))
+            {
+                Console.WriteLine($"Could not read Pwned Passwords database at '{pwnedFilename}'.");
+                return;
+            }
+
+            // Launch interactive mode.
+            Console.WriteLine("Pwned Passwords Explorer: Interactive/Local Mode");
+            LaunchInteractiveMode(new LocalFilePwnedClient(pwnedFilename), args);
         }
 
         private static void InteractiveMode(string[] args)
         {
-            // TODO: Check args length.
+            // Check mode was specified.
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Mode must be specified (-a or -f).");
+                return;
+            }
+
+            // Interactive against API or file?
             switch (args[1])
             {
                 case "-a": // Interactive/API mode.
