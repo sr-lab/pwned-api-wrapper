@@ -1,11 +1,9 @@
-﻿using PwnedApiWrapper.Shared;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+
+using PwnedApiWrapper.Shared;
 
 namespace PwnedApiWrapper.App
 {
@@ -24,7 +22,7 @@ namespace PwnedApiWrapper.App
         /// <summary>
         /// Gets a valid format at the specified index in the program arguments, or returns a fallback on failure.
         /// </summary>
-        /// <param name="args">The arguments passed to the application.</param>
+        /// <param name="args">The command-line arguments passed to the application.</param>
         /// <param name="index">The index at which to look for the format specifier.</param>
         /// <param name="fallback">The fallback format to return in case of failure.</param>
         /// <returns></returns>
@@ -45,10 +43,9 @@ namespace PwnedApiWrapper.App
         /// Generates and outputs results for a batch-mode operation.
         /// </summary>
         /// <param name="service">The service to use for the operation.</param>
-        /// <param name="passwordsFilename">The passwordsFilename of the passwords file loaded.</param>
         /// <param name="passwords">The passwords to get frequencies for.</param>
         /// <param name="format">The format to output results in.</param>
-        private static void GenerateResults(IPwnedClient service, string passwordsFilename, string[] passwords, string format)
+        private static void GenerateResults(IPwnedClient service, string[] passwords, string format)
         {
             // Query service.
             var results = service.GetNumberOfAppearancesForAll(passwords);
@@ -84,20 +81,25 @@ namespace PwnedApiWrapper.App
 
                     // Output template to console with placeholders filled.
                     Console.Write(Properties.Resources.coq_template
-                        .Replace("%NAME", Path.GetFileNameWithoutExtension(passwordsFilename) + "_pwned_count")
+                        .Replace("%NAME", "pwned_passwords_output")
                         .Replace("%PASSWORDS", output.ToString()));
 
                     break;
             }
         }
 
-        private static void LaunchInteractiveMode(IPwnedClient client, string[] args)
+        /// <summary>
+        /// Launches interactive mode with the specified client.
+        /// </summary>
+        /// <param name="client">The client to use.</param>
+        private static void LaunchInteractiveMode(IPwnedClient client)
         {
+            Console.WriteLine($"Interactive mode launched against service: {client.GetInteractiveModePrompt()}");
             string buffer;
             do
             {
                 // Prompt for password.
-                Console.Write("query>");
+                Console.Write($"{client.GetInteractiveModePrompt()}> ");
                 buffer = Console.ReadLine();
 
                 // Output result.
@@ -108,13 +110,19 @@ namespace PwnedApiWrapper.App
             Console.WriteLine("Bye!");
         }
 
-        private static void InteractiveApiMode(string[] args)
+        /// <summary>
+        /// Launches interactive mode against the Pwned Passwords API.
+        /// </summary>
+        private static void InteractiveApiMode()
         {
             // Launch interactive mode.
-            Console.WriteLine("Pwned Passwords Explorer: Interactive/API Mode");
-            LaunchInteractiveMode(new ApiPwnedClient(ApiUrl), args);
+            LaunchInteractiveMode(new ApiPwnedClient(ApiUrl));
         }
 
+        /// <summary>
+        /// Launches interactive mode against a local instance of Pwned Passwords.
+        /// </summary>
+        /// <param name="args">The command-line arguments passed to the application.</param>
         private static void InteractiveFileMode(string[] args)
         {
             // Check database file path was passed.
@@ -133,10 +141,13 @@ namespace PwnedApiWrapper.App
             }
 
             // Launch interactive mode.
-            Console.WriteLine("Pwned Passwords Explorer: Interactive/Local Mode");
-            LaunchInteractiveMode(new LocalFilePwnedClient(pwnedFilename), args);
+            LaunchInteractiveMode(new LocalFilePwnedClient(pwnedFilename));
         }
 
+        /// <summary>
+        /// Launches interactive mode against some instance of Pwned Passwords.
+        /// </summary>
+        /// <param name="args">The command-line arguments passed to the application.</param>
         private static void InteractiveMode(string[] args)
         {
             // Check mode was specified.
@@ -150,7 +161,7 @@ namespace PwnedApiWrapper.App
             switch (args[1])
             {
                 case "-a": // Interactive/API mode.
-                    InteractiveApiMode(args);
+                    InteractiveApiMode();
                     break;
                 case "-f": // Interactive/File mode.
                     InteractiveFileMode(args);
@@ -161,16 +172,26 @@ namespace PwnedApiWrapper.App
         /// <summary>
         /// Runs a whole file of passwords through the Pwned Passwords API.
         /// </summary>
-        /// <param name="passwordsFilename">The filename from which the passwords were loaded.</param>
+        /// <param name="args">The command-line arguments passed to the application.</param>
         /// <param name="passwords">The passwords to query the database for.</param>
-        /// <param name="args">The arguments passed to the application.</param>
-        private static void BatchApiMode(string passwordsFilename, string[] passwords, string[] args)
+        private static void BatchApiMode(string[] args, string[] passwords)
         {
             // Check mode was specified.
             if (args.Length < 6)
             {
                 Console.WriteLine("Mode must be specified (-s or -h).");
                 return;
+            }
+
+            // Read password list. Warn if very long.
+            if (passwords.Length > WarnSizeLimit)
+            {
+                Console.WriteLine($"You're about to throw more than {WarnSizeLimit} passwords at the API at {ApiUrl}. Continue? (Y/n)");
+                if (Console.ReadKey(true).Key != ConsoleKey.Y)
+                {
+                    Console.WriteLine("Aborting...");
+                    return;
+                }
             }
 
             // Mode select.
@@ -185,7 +206,7 @@ namespace PwnedApiWrapper.App
                     var service = new ApiPwnedClient(ApiUrl);
 
                     // Generate results.
-                    GenerateResults(service, passwordsFilename, passwords, format);
+                    GenerateResults(service, passwords, format);
 
                     break;
                 case "-h": // Frequency-only mode.
@@ -198,10 +219,9 @@ namespace PwnedApiWrapper.App
         /// <summary>
         /// Runs a whole file of passwords through a local instance of Pwned Passwords.
         /// </summary>
-        /// <param name="passwordsFilename">The filename from which the passwords were loaded.</param>
+        /// <param name="args">The command-line arguments passed to the application.</param>
         /// <param name="passwords">The passwords to query the database for.</param>
-        /// <param name="args">The arguments passed to the application.</param>
-        private static void BatchFileMode(string passwordsFilename, string[] passwords, string[] args)
+        private static void BatchFileMode(string[] args, string[] passwords)
         {
             // Check database file path was passed.
             if (args.Length < 5)
@@ -237,7 +257,7 @@ namespace PwnedApiWrapper.App
                     var service = new LocalFilePwnedClient(pwnedFilename);
 
                     // Generate results.
-                    GenerateResults(service, passwordsFilename, passwords, format);
+                    GenerateResults(service, passwords, format);
 
                     break;
                 case "-h": // Frequency-only mode.
@@ -262,14 +282,14 @@ namespace PwnedApiWrapper.App
                     break;
             }
         }
-        
+
         /// <summary>
         /// Runs a whole file of passwords through some instance of Pwned Passwords.
         /// </summary>
-        /// <param name="args">The arguments passed to the application.</param>
+        /// <param name="args">The command-line arguments passed to the application.</param>
         private static void BatchMode(string[] args)
         {
-            // Check database file path was passed.
+            // Check passwords file path was passed.
             if (args.Length < 3)
             {
                 Console.WriteLine("Passwords file must be specified.");
@@ -296,10 +316,10 @@ namespace PwnedApiWrapper.App
             switch (args[3])
             {
                 case "-a": // API mode.
-                    BatchApiMode(filename, passwords, args);
+                    BatchApiMode(args, passwords);
                     break;
                 case "-f": // File mode.
-                    BatchFileMode(filename, passwords, args);
+                    BatchFileMode(args, passwords);
                     break;
             }
         }
@@ -325,61 +345,6 @@ namespace PwnedApiWrapper.App
                     BatchMode(args);
                     break;
             }
-
-            //// Read password list. Warn if very long.
-            //var passwords = FileUtils.ReadFileAsLines(args[0]);
-            //if (passwords.Length > WarnSizeLimit)
-            //{
-            //    Console.WriteLine($"You're about to throw more than {WarnSizeLimit} passwords at the API at {ApiUrl}. Continue? (Y/n)");
-            //    if (Console.ReadKey(true).Key != ConsoleKey.Y)
-            //    {
-            //        Console.WriteLine("Aborting...");
-            //        return;
-            //    }
-            //}
-
-            //// Initialize client and do the work.
-            //var client = new ApiPwnedClient(ApiUrl);
-            //var results = new Dictionary<string, int>();
-            //for (var i = 0; i < passwords.Length; i++)
-            //{
-            //    var appearances = client.GetNumberOfAppearances(passwords[i]);
-            //    results.Add(passwords[i], appearances);
-
-            //    // Give status to user.
-            //    Console.WriteLine($"Password {passwords[i]} found {appearances} times!");
-            //}
-
-            //// Plain output goes straight to console.
-            //if (format == "plain")
-            //{
-            //    Console.WriteLine("password, appearances");
-            //    foreach (var entry in results)
-            //    {
-            //        Console.WriteLine($"{entry.Key}, {entry.Value}");
-            //    }
-            //}
-            //else if (format == "coq")
-            //{
-            //    // Coq format needs placing into template.
-            //    var output = new StringBuilder();
-            //    var first = true;
-            //    foreach (var entry in results)
-            //    {
-            //        if (!first)
-            //        {
-            //            output.Append(";");
-            //            output.AppendLine();
-            //        }
-            //        output.Append($"  (\"{entry.Key}\", {entry.Value} # 1)");
-            //        first = false;
-            //    }
-
-            //    // Output template to console with placeholders filled.
-            //    Console.Write(Properties.Resources.coq_template
-            //        .Replace("%NAME", Path.GetFileNameWithoutExtension(args[0]) + "_pwned_count")
-            //        .Replace("%PASSWORDS", output.ToString()));
-            //}
         }
     }
 }
