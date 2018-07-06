@@ -12,15 +12,20 @@ using PwnedApiWrapper;
 
 // ...
 
-var client = new PwnedApiClient("https://api.pwnedpasswords.com/");
-var occurrences = client.GetNumberOfAppearances("hunter2");
+// Query API, single password.
+var apiClient = new ApiPwnedClient("https://api.pwnedpasswords.com/");
+var apiOccurrences = apiClient.GetNumberOfAppearances("hunter2");
+
+// Query local file, several passwords.
+var localClient = new LocalFilePwnedClient("pwned-passwords-2.0.txt");
+var localOccurrences = localClient.GetNumberOfAppearances(new[] { "matrix1", "password123" });
 ```
 
 ### PwnedApiWrapper.Shared
 Just contains shared code used in each project in the solution (some file I/O and hashing stuff). Don't even worry about it, but make sure `PwnedApiWrapper.Shared.dll` stays alongside the compiled versions of other projects or they won't work.
 
 ### PwnedApiWrapper.App
-A command-line application *"Pwned Passwords Explorer"* that offers you the functionality of `PwnedApiWrapper` in from the command line. To get usage information from the utility itself, use the `-h` option like so:
+A command-line application *"Pwned Passwords Explorer (PPExp)"* that offers you some of the functionality of `PwnedApiWrapper` from the command line. To get usage information from the utility itself, use the `-h` option like so:
 
 ```
 ppexp -h
