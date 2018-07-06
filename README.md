@@ -20,45 +20,75 @@ var occurrences = client.getNumberOfAppearances("hunter2");
 Just contains shared code used in each project in the solution (some file I/O and hashing stuff). Don't even worry about it, but make sure `PwnedApiWrapper.Shared.dll` stays alongside the compiled versions of other projects or they won't work.
 
 ### PwnedApiWrapper.App
-A command-line application that offers you the functionality of `PwnedApiWrapper` in batch mode (checking multiple passwords at once from a newline-delimited file). Use it like so:
+A command-line application that offers you the functionality of `PwnedApiWrapper` in from the command line. To get usage information from the utility itself, use the `-h` option like so:
 
 ```
-PwnedApiWrapper.App.exe my_password_list.txt plain > output.txt
+PwnedApiWrapper.App.exe -h
+```
+
+This utility can be run in three different primary modes:
+
+* `-i`: Interactive mode. Opens up a shell-like interface around a data source allowing you to grab frequencies for one password at a time.
+* `-b <passwords_file>`: Batch mode. Allows you to pass in a newline-delimited list of passwords in a file and grab frequencies for them all.
+* `-c <pwned_passwords_db_file>`: Frequency-only mode. Allows you to perform actions involving frequencies only (no passwords).
+
+#### Interactive Mode
+After specifying interactive mode, pass one of the following options to specify a data source:
+
+* `-a`: Uses the official API. Use this option with consideration please.
+* `-f <pwned_passwords_db_file>`: Uses a local Pwned Password file. Plain text only, must not be archived.
+
+Example: Start interactive mode against the API:
+
+```
+ppexp -i -a
+```
+
+Example: Start interactive mode against a local copy of Pwned Passwords:
+
+```
+ppexp -i -f pwned-passwords-2.0.txt
+```
+
+#### Batch Mode
+After specifying batch mode, pass one of the following options to specify a data source:
+
+* -a: Uses the official API. Use this option with consideration please.
+* -f <pwned_passwords_db_file>: Uses a local Pwned Password file. Plain text only, must not be archived.
+
+Example: Run `passwords.txt` through the API:
+
+```
+ppexp -b passwords.txt -a
+```
+
+Example: Run `passwords.txt` through a local copy of Pwned Passwords:
+
+```
+ppexp -b passwords.txt -f pwned-passwords-2.0.txt
+```
+
+#### Frequency-Only Mode
+After specifying frequency-only mode, pass one of the following options to specify a query mode:
+
+* -l <limit>: Gets all frequencies above a threshold.
+* -t <count>: Gets a number of the highest frequencies. Note that this assumes the data file is sorted by frequency.
+
+Example: Get all frequencies above 1000000:
+
+```
+ppexp -c pwned-passwords-2.0.txt -l 1000000
+```
+
+Example: Get top 100 frequencies:
+
+```
+ppexp -c pwned-passwords-2.0.txt -t 100
 ```
 
 Specifying a file containing a newline-delimited list of passwords and either `plain` (most common) or `coq` which will generate a lookup structure containing results for use from the [Coq proof assistant](https://coq.inria.fr). Output will be printed to the console, but can obviously be redirected to a file using `>` (as in the example).
 
-*Use this utility [considerately](#responsible-use)!*
-
-### PwnedApiWrapper.FrequencyExtractor
-A command-line application that will just extract frequencies from the local data file for you (after you torrent it of course) without any regard for hashes etc. Useful for building statistical models of password frequencies when we don't necessarily care about the passwords themselves. Use it like so:
-
-```
-PwnedApiWrapper.FrequencyExtractor.exe 1000 pwned-passwords-2.0.txt
-```
-
-Patience is a virtue here. That text file is over 30GB at the time of writing and it'll take a while to go through. Code has been designed not to wreck your RAM too hard by trying to load the whole thing into memory. The example above extracts all frequencies above 1000 from the corpus and returns them in a newline-delimited file, sorted descending.
-
-### PwnedApiWrapper.Local
-A command-line application that works in the same way as `PwnedApiWrapper.App` but queries a a local version of Pwned Passwords instead. It won't work with the Pwned Passwords archive (a `*.7z` file) so you'll need to extract it first. Use it like so once you have the text file extracted:
-
-```
-PwnedApiWrapper.Local.exe passwords.txt pwned-passwords-2.0.txt plain
-```
-
-Where `passwords.txt` is the newline-delimited file containing passwords to grab frequencies for. Once again, this might take a while. The utility also supports "interactive mode", which brings up a prompt to get password frequencies one at a time:
-
-```
-PwnedApiWrapper.Local.exe -i pwned-passwords-2.0.txt
-```
-
-This will bring up a prompt for a password to search for, like so:
-
-```
-query> 
-```
-
-Enter the password you want to grab the frequency for, hit enter and be patient (we've got over 30GB of file to trawl).
+*Please use this utility [considerately](#responsible-use)!*
 
 ## Building
 The utility is written in C#, just build it like any other Visual Studio project.
