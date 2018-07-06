@@ -19,6 +19,11 @@ namespace PwnedApiWrapper.App
         /// </summary>
         private const int WarnSizeLimit = 50;
         
+        private static void PrintHelp()
+        {
+
+        }
+
         /// <summary>
         /// Gets a valid format at the specified index in the program arguments, or returns a fallback on failure.
         /// </summary>
@@ -126,22 +131,23 @@ namespace PwnedApiWrapper.App
         private static void InteractiveFileMode(string[] args)
         {
             // Check database file path was passed.
-            if (args.Length < 4)
+            if (args.Length < 3)
             {
                 Console.WriteLine("Pwned Passwords database file must be specified.");
                 return;
             }
 
             // Check file exists.
-            var pwnedFilename = args[3];
-            if (!File.Exists(pwnedFilename))
+            var filename = args[2];
+            if (!File.Exists(filename))
             {
-                Console.WriteLine($"Could not read Pwned Passwords database at '{pwnedFilename}'.");
+                Console.WriteLine($"Could not read Pwned Passwords database at '{filename}'.");
                 return;
             }
 
             // Launch interactive mode.
-            LaunchInteractiveMode(new LocalFilePwnedClient(pwnedFilename));
+            Console.WriteLine("Local interactive mode will be *slow*. Local batch mode is much more efficient.");
+            LaunchInteractiveMode(new LocalFilePwnedClient(filename));
         }
 
         /// <summary>
@@ -177,7 +183,7 @@ namespace PwnedApiWrapper.App
         private static void BatchApiMode(string[] args, string[] passwords)
         {
             // Check mode was specified.
-            if (args.Length < 6)
+            if (args.Length < 4)
             {
                 Console.WriteLine("Mode must be specified (-s or -h).");
                 return;
@@ -195,12 +201,12 @@ namespace PwnedApiWrapper.App
             }
 
             // Mode select.
-            switch (args[5])
+            switch (args[3])
             {
                 case "-s": // Standard mode.
 
                     // Get format, default to plain.
-                    var format = GetFormat(args, 6);
+                    var format = GetFormat(args, 4);
 
                     // Initialise service.
                     var service = new ApiPwnedClient(ApiUrl);
@@ -224,63 +230,28 @@ namespace PwnedApiWrapper.App
         private static void BatchFileMode(string[] args, string[] passwords)
         {
             // Check database file path was passed.
-            if (args.Length < 5)
+            if (args.Length < 4)
             {
                 Console.WriteLine("Pwned Passwords database file must be specified.");
                 return;
             }
 
             // Check file exists.
-            var pwnedFilename = args[4];
-            if (!File.Exists(pwnedFilename))
+            var filename = args[3];
+            if (!File.Exists(filename))
             {
-                Console.WriteLine($"Could not read Pwned Passwords database at '{pwnedFilename}'.");
+                Console.WriteLine($"Could not read Pwned Passwords database at '{filename}'.");
                 return;
             }
+            
+            // Get format, default to plain.
+            var format = GetFormat(args, 4);
 
-            // Check mode was specified.
-            if (args.Length < 6)
-            {
-                Console.WriteLine("Mode must be specified (-s or -h).");
-                return;
-            }
+            // Initialise service.
+            var service = new LocalFilePwnedClient(filename);
 
-            // Mode select.
-            switch (args[5])
-            {
-                case "-s": // Standard mode.
-
-                    // Get format, default to plain.
-                    var format = GetFormat(args, 6);
-
-                    // Initialise service.
-                    var service = new LocalFilePwnedClient(pwnedFilename);
-
-                    // Generate results.
-                    GenerateResults(service, passwords, format);
-
-                    break;
-                case "-h": // Frequency-only mode.
-                    
-                    // Check limit parses as an integer.
-                    if (!int.TryParse(args[6], out var limit))
-                    {
-                        Console.WriteLine("Invalid limit provided.");
-                        return;
-                    }
-
-                    // Query file.
-                    var frequencyService = new LocalFilePwnedFrequencyExtractor(pwnedFilename);
-                    var frequencyResults = frequencyService.GetAbove(limit);
-
-                    // Output goes straight to console.
-                    foreach (var entry in frequencyResults)
-                    {
-                        Console.WriteLine(entry);
-                    }
-
-                    break;
-            }
+            // Generate results.
+            GenerateResults(service, passwords, format);
         }
 
         /// <summary>
@@ -290,14 +261,14 @@ namespace PwnedApiWrapper.App
         private static void BatchMode(string[] args)
         {
             // Check passwords file path was passed.
-            if (args.Length < 3)
+            if (args.Length < 2)
             {
                 Console.WriteLine("Passwords file must be specified.");
                 return;
             }
 
             // Read passwords file in.
-            var filename = args[2];
+            var filename = args[1];
             if (!File.Exists(filename))
             {
                 Console.WriteLine($"Could not load passwords file at '{filename}'.");
@@ -306,14 +277,14 @@ namespace PwnedApiWrapper.App
             var passwords = FileUtils.ReadFileAsLines(filename);
             
             // Check mode was specified.
-            if (args.Length < 4)
+            if (args.Length < 3)
             {
                 Console.WriteLine("Mode must be specified (-a or -f).");
                 return;
             }
 
             // Batch against API or file?
-            switch (args[3])
+            switch (args[2])
             {
                 case "-a": // API mode.
                     BatchApiMode(args, passwords);
@@ -324,16 +295,62 @@ namespace PwnedApiWrapper.App
             }
         }
 
+        /// <summary>
+        /// Retrieves frequencies from a local instance of Pwned Passwords.
+        /// </summary>
+        /// <param name="args">The command-line arguments passed to the application.</param>
+        private static void FrequencyMode(string[] args)
+        {
+            // Check database file path was passed.
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Pwned Passwords database file must be specified.");
+                return;
+            }
+
+            // Check file exists.
+            var filename = args[1];
+            if (!File.Exists(filename))
+            {
+                Console.WriteLine($"Could not read Pwned Passwords database at '{filename}'.");
+                return;
+            }
+
+            // Check limit was specified.
+            if (args.Length < 3)
+            {
+                Console.WriteLine("Limit must be specified.");
+                return;
+            }
+
+            // Check limit parses as an integer.
+            if (!int.TryParse(args[2], out var limit))
+            {
+                Console.WriteLine("Invalid limit provided.");
+                return;
+            }
+
+            // Query file.
+            var service = new LocalFilePwnedFrequencyExtractor(filename);
+            var results = service.GetAbove(limit);
+
+            // Output goes straight to console.
+            foreach (var entry in results)
+            {
+                Console.WriteLine(entry);
+            }
+        }
+
         static void Main(string[] args)
         {
             // We at least need a mode.
             if (args.Length < 1)
             {
-                Console.WriteLine("Interactive: App -i");
-                Console.WriteLine("Batch: App -b <password_file> <-a | -f <pwned_db>> [format]");
+                Console.WriteLine("Use -h for help.");
                 return;
             }
 
+            // Interactive, batch or frequency-only mode?
             switch (args[0])
             {
                 case "-i":
@@ -343,6 +360,14 @@ namespace PwnedApiWrapper.App
                 case "-b":
                     // Batch mode.
                     BatchMode(args);
+                    break;
+                case "-c": 
+                    // Frequency only mode.
+                    FrequencyMode(args);
+                    break;
+                case "-h":
+                    // Show help.
+                    PrintHelp();
                     break;
             }
         }
