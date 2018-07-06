@@ -61,11 +61,43 @@ namespace PwnedApiWrapper.App.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Require Import Coq.Lists.List.
+        ///Require Import Coq.Strings.String.
+        ///Require Import Coq.QArith.QArith.
+        ///
+        ///Require Import Skeptic.Trie.
+        ///
+        ///Import ListNotations.
+        ///
+        ///Open Scope string_scope.
+        ///Open Scope Q_scope.
+        ///
+        ///Definition %NAME : list (string * Q)%type := [
+        ///%PASSWORDS
+        ///].
+        ///
+        ///Definition %NAME_trie :=
+        ///  create_lookup_trie %NAME..
         /// </summary>
         internal static string coq_template {
             get {
                 return ResourceManager.GetString("coq_template", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pwned Passwords Exploration Tool
+        ///This utility can be run in three different primary modes:
+        ///  * -i: Interactive mode. Opens up a shell-like interface around a data source allowing you to grab frequencies for one password at a time.
+        ///  * -b: Batch mode. Allows you to pass in a newline-delimited list of passwords in a file and grab frequencies for them all.
+        ///  * -c: Frequency-only mode. Allows you to perform actions involving frequencies only (no passwords).
+        ///
+        ///Interactive mode
+        ///After specifying interactive  [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string help_card {
+            get {
+                return ResourceManager.GetString("help_card", resourceCulture);
             }
         }
     }

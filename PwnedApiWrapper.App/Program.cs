@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -21,7 +22,8 @@ namespace PwnedApiWrapper.App
         
         private static void PrintHelp()
         {
-
+            
+            Console.WriteLine(Properties.Resources.help_card);
         }
 
         /// <summary>
@@ -316,23 +318,62 @@ namespace PwnedApiWrapper.App
                 return;
             }
 
-            // Check limit was specified.
+            // Check query type was specified.
             if (args.Length < 3)
             {
-                Console.WriteLine("Limit must be specified.");
+                Console.WriteLine("Query type must be specified (-l or -t).");
                 return;
             }
 
-            // Check limit parses as an integer.
-            if (!int.TryParse(args[2], out var limit))
-            {
-                Console.WriteLine("Invalid limit provided.");
-                return;
-            }
-
-            // Query file.
+            // Get ready to query file.
             var service = new LocalFilePwnedFrequencyExtractor(filename);
-            var results = service.GetAbove(limit);
+            IList<int> results = new List<int>();
+
+            // Switch on query type.
+            switch (args[2])
+            {
+                case "-l":
+
+                    // Check limit was specified.
+                    if (args.Length < 4)
+                    {
+                        Console.WriteLine("Limit must be specified.");
+                        return;
+                    }
+
+                    // Check limit parses as an integer.
+                    if (!int.TryParse(args[3], out var limit))
+                    {
+                        Console.WriteLine("Invalid limit provided.");
+                        return;
+                    }
+
+                    results = service.GetAbove(limit); // Get frequencies above `limit`.
+                    break;
+                case "-t":
+
+                    // Check count was specified.
+                    if (args.Length < 4)
+                    {
+                        Console.WriteLine("Count must be specified.");
+                        return;
+                    }
+
+                    // Check count parses as an integer.
+                    if (!int.TryParse(args[3], out var count))
+                    {
+                        Console.WriteLine("Invalid count provided.");
+                        return;
+                    }
+
+                    results = service.GetTop(count); // Get `count` top frequencies.
+                    break;
+                default:
+
+                    // Invalid query type specified.
+                    Console.WriteLine("Invalid query type specified (Use -h for help).");
+                    break;
+            }
 
             // Output goes straight to console.
             foreach (var entry in results)
@@ -354,20 +395,29 @@ namespace PwnedApiWrapper.App
             switch (args[0])
             {
                 case "-i":
+
                     // Interactive mode.
                     InteractiveMode(args);
                     break;
                 case "-b":
+
                     // Batch mode.
                     BatchMode(args);
                     break;
                 case "-c": 
+
                     // Frequency only mode.
                     FrequencyMode(args);
                     break;
                 case "-h":
+
                     // Show help.
                     PrintHelp();
+                    break;
+                default:
+
+                    // Invalid mode specified.
+                    Console.WriteLine("Invalid mode specified (Use -h for help).");
                     break;
             }
         }

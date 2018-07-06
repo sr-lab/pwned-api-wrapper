@@ -1,0 +1,58 @@
+    ____  ____  ______         
+   / __ \/ __ \/ ____/  ______ 
+  / /_/ / /_/ / __/ | |/_/ __ \
+ / ____/ ____/ /____>  </ /_/ /
+/_/   /_/   /_____/_/|_/ .___/ 
+                  /_/      
+
+Pwned Passwords Exploration Tool %VERSION
+=========================================
+This utility can be run in three different primary modes:
+  * -i: Interactive mode. Opens up a shell-like interface around a data source 
+        allowing you to grab frequencies for one password at a time.
+  * -b <passwords_file>: Batch mode. Allows you to pass in a newline-delimited 
+        list of passwords in a file and grab frequencies for them all.
+  * -c <pwned_passwords_db_file>: Frequency-only mode. Allows you to perform 
+        actions involving frequencies only (no passwords).
+
+Interactive Mode
+================
+After specifying interactive mode, pass one of the following options to specify 
+a data source:
+  * -a: Uses the official API. Use this option with consideration please.
+  * -f <pwned_passwords_db_file>: Uses a local Pwned Password file. Plain text 
+        only, must not be archived.
+
+Example: Start interactive mode against the API:
+> ppexp -i -a
+
+Example: Start interactive mode against a local copy of Pwned Passwords:
+> ppexp -i -f pwned-passwords-2.0.txt
+
+Batch Mode
+==========
+After specifying batch mode, pass one of the following options to specify a data
+source:
+  * -a: Uses the official API. Use this option with consideration please.
+  * -f <pwned_passwords_db_file>: Uses a local Pwned Password file. Plain text 
+      only, must not be archived.
+
+Example: Run `passwords.txt` through the API:
+> ppexp -b passwords.txt -a
+
+Example: Run `passwords.txt` through a local copy of Pwned Passwords:
+> ppexp -b passwords.txt -f pwned-passwords-2.0.txt
+
+Frequency-Only Mode
+===================
+After specifying batch mode, pass one of the following options to specify a 
+query mode:
+  * -l <limit>: Gets all frequencies above a threshold.
+  * -t <count>: Gets a number of the highest frequencies. Note that this assumes
+    the data file is sorted by frequency.
+
+Example: Get all frequencies above 1000000:
+> ppexp -c pwned-passwords-2.0.txt -l 1000000
+
+Example: Get top 100 frequencies:
+> ppexp -c pwned-passwords-2.0.txt -t 100

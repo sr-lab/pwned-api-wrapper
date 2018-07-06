@@ -52,11 +52,32 @@ namespace PwnedApiWrapper
         
         public IList<int> GetTop(int count)
         {
-            // Get all, sort and take.
-            return GetAbove(int.MinValue)
-                .OrderByDescending(x => x)
-                .Take(count)
-                .ToList();
+            // Prepare output dictionary.
+            var output = new List<int>();
+
+            // Read file one line at a time, has to be buffered, file too big otherwise.
+            using (var reader = new BufferedStream(new FileStream(Path, FileMode.Open)))
+            {
+                // Lines are 63 bytes long (including line endings, which are Windows-style).
+                byte[] buffer = new byte[63];
+                while (reader.Read(buffer, 0, buffer.Length) != 0)
+                {
+                    // Are we done?
+                    if (output.Count >= count)
+                    {
+                        break;
+                    }
+
+                    // Decode and split along colon.
+                    var line = Encoding.ASCII.GetString(buffer);
+                    var splitter = line.Trim().Split(':');
+
+                    // Add frequency to output.
+                    var x = int.Parse(splitter[1]);
+                    output.Add(x);
+                }
+            }
+            return output;
         }
     }
 }
