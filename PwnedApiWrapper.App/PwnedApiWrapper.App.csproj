@@ -7,7 +7,7 @@
     <ProjectGuid>{C330036F-8005-4320-B540-050CB331F7C1}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>PwnedApiWrapper.App</RootNamespace>
-    <AssemblyName>PwnedApiWrapper.App</AssemblyName>
+    <AssemblyName>ppexp</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
