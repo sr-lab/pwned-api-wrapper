@@ -37,11 +37,19 @@ source:
   * -f <pwned_passwords_db_file>: Uses a local Pwned Password file. Plain text 
       only, must not be archived.
 
-Example: Run `passwords.txt` through the API:
-> ppexp -b passwords.txt -a
+Example: Run `passwords.txt` through the API, output in CSV format:
+> ppexp -b passwords.txt -a plain
 
-Example: Run `passwords.txt` through a local copy of Pwned Passwords:
-> ppexp -b passwords.txt -f pwned-passwords-2.0.txt
+Example: Run `passwords.txt` through a local copy of Pwned Passwords, output in 
+Coq format:
+> ppexp -b passwords.txt -f pwned-passwords-2.0.txt coq
+
+Formats
+=======
+Batch mode supports returning results in one of two formats:
+  * plain: Used by default, results will be returned in CSV format.
+  * coq: Results will be returned in a lookup structure compatible with the Coq
+    proof assistant.
 
 Frequency-Only Mode
 ===================
