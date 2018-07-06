@@ -18,6 +18,11 @@ namespace PwnedApiWrapper
         public string BaseUrl { get; private set; }
 
         /// <summary>
+        /// The hostname of the server hosting the API.
+        /// </summary>
+        public string ApiHost { get; private set; }
+
+        /// <summary>
         /// The WebClient instance used to download data.
         /// </summary>
         private WebClient client;
@@ -30,6 +35,10 @@ namespace PwnedApiWrapper
         {
             BaseUrl = baseUrl + (baseUrl.EndsWith("/") ? "" : "/"); // Append trailing slash if needed.
             client = new WebClient();
+
+            // Extract host for interactive mode prompt.
+            var uri = new Uri(BaseUrl);
+            ApiHost = uri.Host;
         }
 
         /// <summary>
@@ -90,6 +99,11 @@ namespace PwnedApiWrapper
         {
             // Query for each password in the collection.
             return passwords.ToDictionary(x => x, x => GetNumberOfAppearances(x));
+        }
+
+        public string GetInteractiveModePrompt()
+        {
+            return $"RemoteApi@{ApiHost}";
         }
     }
 }

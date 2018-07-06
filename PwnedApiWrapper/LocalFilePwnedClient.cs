@@ -76,5 +76,10 @@ namespace PwnedApiWrapper
             }
             return output;
         }
+
+        public string GetInteractiveModePrompt()
+        {
+            return $"LocalFile@{Path}";
+        }
     }
 }
