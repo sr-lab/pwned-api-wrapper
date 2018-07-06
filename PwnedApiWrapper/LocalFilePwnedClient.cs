@@ -33,7 +33,7 @@ namespace PwnedApiWrapper
         /// <returns>A dictionary of password hashes against plaintext passwords.</returns>
         private static Dictionary<string, string> Sha1Many(IEnumerable<string> passwords, bool lower = false)
         {
-            return passwords.ToDictionary(x => x, x => CryptoUtils.Sha1(x, lower));
+            return passwords.ToDictionary(x => CryptoUtils.Sha1(x, lower), x => x);
         }
 
         public int GetNumberOfAppearances(string password)
