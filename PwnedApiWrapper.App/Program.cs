@@ -146,7 +146,7 @@ namespace PwnedApiWrapper.App
             }
 
             // Launch interactive mode.
-            Console.WriteLine("Local interactive mode will be *slow*. Local batch mode is much more efficient.");
+            Console.WriteLine("Local interactive mode will be *slow* for rare passwords. Local batch mode is much more efficient.");
             LaunchInteractiveMode(new LocalFilePwnedClient(filename));
         }
 
@@ -274,7 +274,7 @@ namespace PwnedApiWrapper.App
                 Console.WriteLine($"Could not load passwords file at '{filename}'.");
                 return;
             }
-            var passwords = FileUtils.ReadFileAsLines(filename);
+            var passwords = FileUtils.ReadFileAsLines(filename).Where(x => x.Length > 0).ToArray(); // Remove blank lines.
             
             // Check mode was specified.
             if (args.Length < 3)
