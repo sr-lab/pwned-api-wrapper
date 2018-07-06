@@ -20,7 +20,14 @@ namespace PwnedApiWrapper.App
         /// The threshold number of passwords at which to warn the user about API usage.
         /// </summary>
         private const int WarnSizeLimit = 50;
-
+        
+        /// <summary>
+        /// Gets a valid format at the specified index in the program arguments, or returns a fallback on failure.
+        /// </summary>
+        /// <param name="args">The arguments passed to the application.</param>
+        /// <param name="index">The index at which to look for the format specifier.</param>
+        /// <param name="fallback">The fallback format to return in case of failure.</param>
+        /// <returns></returns>
         private static string GetFormat(string[] args, int index, string fallback = "plain")
         {
             // Validate format, default to plain.
@@ -32,6 +39,56 @@ namespace PwnedApiWrapper.App
             }
 
             return format;
+        }
+
+        /// <summary>
+        /// Generates and outputs results for a batch-mode operation.
+        /// </summary>
+        /// <param name="service">The service to use for the operation.</param>
+        /// <param name="passwordsFilename">The passwordsFilename of the passwords file loaded.</param>
+        /// <param name="passwords">The passwords to get frequencies for.</param>
+        /// <param name="format">The format to output results in.</param>
+        private static void GenerateResults(IPwnedClient service, string passwordsFilename, string[] passwords, string format)
+        {
+            // Query service.
+            var results = service.GetNumberOfAppearancesForAll(passwords);
+
+            // Plain output goes straight to console.
+            switch (format)
+            {
+                case "plain":
+
+                    // Plain is just plain CSV.
+                    Console.WriteLine("password, appearances");
+                    foreach (var entry in results)
+                    {
+                        Console.WriteLine($"\"{entry.Key.Replace("\"", "\"\"")}\", {entry.Value}");
+                    }
+
+                    break;
+                case "coq":
+
+                    // Coq lookup format needs placing into template.
+                    var output = new StringBuilder();
+                    var first = true;
+                    foreach (var entry in results)
+                    {
+                        if (!first)
+                        {
+                            output.Append(";");
+                            output.AppendLine();
+                        }
+                        output.Append($"  (\"{entry.Key}\", {entry.Value} # 1)");
+                        first = false;
+                    }
+
+                    // Output template to console with placeholders filled.
+                    Console.Write(Properties.Resources.coq_template
+                        .Replace("%NAME", Path.GetFileNameWithoutExtension(passwordsFilename) + "_pwned_count")
+                        .Replace("%PASSWORDS", output.ToString()));
+
+                    break;
+            }
         }
 
         private static void InteractiveApiMode(string[] args)
@@ -59,6 +116,7 @@ namespace PwnedApiWrapper.App
 
         private static void InteractiveMode(string[] args)
         {
+            // TODO: Check args length.
             switch (args[1])
             {
                 case "-a": // Interactive/API mode.
@@ -70,17 +128,18 @@ namespace PwnedApiWrapper.App
             }
         }
 
-        private static void BatchApiMode(string[] passwords, string[] args)
+        /// <summary>
+        /// Runs a whole file of passwords through the Pwned Passwords API.
+        /// </summary>
+        /// <param name="passwordsFilename">The filename from which the passwords were loaded.</param>
+        /// <param name="passwords">The passwords to query the database for.</param>
+        /// <param name="args">The arguments passed to the application.</param>
+        private static void BatchApiMode(string passwordsFilename, string[] passwords, string[] args)
         {
-
-        }
-
-        private static void BatchFileMode(string[] passwords, string[] args)
-        {
-            // Check file exists.
-            if (!File.Exists(args[4]))
+            // Check mode was specified.
+            if (args.Length < 6)
             {
-                Console.WriteLine($"Could not read input file {args[3]}.");
+                Console.WriteLine("Mode must be specified (-s or -h).");
                 return;
             }
 
@@ -92,79 +151,138 @@ namespace PwnedApiWrapper.App
                     // Get format, default to plain.
                     var format = GetFormat(args, 6);
 
-                    // Query file.
-                    var service = new LocalFilePwnedClient(args[1]);
-                    var results = service.GetNumberOfAppearancesForAll(passwords);
+                    // Initialise service.
+                    var service = new ApiPwnedClient(ApiUrl);
 
-                    // Plain output goes straight to console.
-                    if (format == "plain")
-                    {
-                        Console.WriteLine("password, appearances");
-                        foreach (var entry in results)
-                        {
-                            Console.WriteLine($"\"{entry.Key.Replace("\"", "\"\"")}\", {entry.Value}");
-                        }
-                    }
-                    else if (format == "coq")
-                    {
-                        // Coq format needs placing into template.
-                        var output = new StringBuilder();
-                        var first = true;
-                        foreach (var entry in results)
-                        {
-                            if (!first)
-                            {
-                                output.Append(";");
-                                output.AppendLine();
-                            }
-                            output.Append($"  (\"{entry.Key}\", {entry.Value} # 1)");
-                            first = false;
-                        }
-
-                        // Output template to console with placeholders filled.
-                        Console.Write(Properties.Resources.coq_template
-                            .Replace("%NAME", Path.GetFileNameWithoutExtension(args[0]) + "_pwned_count")
-                            .Replace("%PASSWORDS", output.ToString()));
-                    }
+                    // Generate results.
+                    GenerateResults(service, passwordsFilename, passwords, format);
 
                     break;
-                case "-f": // Frequency-only mode.
+                case "-h": // Frequency-only mode.
 
-
+                    Console.WriteLine("Frequency-only output is not supported in API mode.");
                     break;
             }
         }
 
-        private static void BatchMode(string[] args)
+        /// <summary>
+        /// Runs a whole file of passwords through a local instance of Pwned Passwords.
+        /// </summary>
+        /// <param name="passwordsFilename">The filename from which the passwords were loaded.</param>
+        /// <param name="passwords">The passwords to query the database for.</param>
+        /// <param name="args">The arguments passed to the application.</param>
+        private static void BatchFileMode(string passwordsFilename, string[] passwords, string[] args)
         {
-            // Read passwords file in.
-            if (!File.Exists(args[2]))
+            // Check database file path was passed.
+            if (args.Length < 5)
             {
-                Console.WriteLine($"Could not load passwords file {args[2]}.");
+                Console.WriteLine("Pwned Passwords database file must be specified.");
                 return;
             }
-            var passwords = FileUtils.ReadFileAsLines(args[2]);
+
+            // Check file exists.
+            var pwnedFilename = args[4];
+            if (!File.Exists(pwnedFilename))
+            {
+                Console.WriteLine($"Could not read Pwned Passwords database at '{pwnedFilename}'.");
+                return;
+            }
+
+            // Check mode was specified.
+            if (args.Length < 6)
+            {
+                Console.WriteLine("Mode must be specified (-s or -h).");
+                return;
+            }
+
+            // Mode select.
+            switch (args[5])
+            {
+                case "-s": // Standard mode.
+
+                    // Get format, default to plain.
+                    var format = GetFormat(args, 6);
+
+                    // Initialise service.
+                    var service = new LocalFilePwnedClient(pwnedFilename);
+
+                    // Generate results.
+                    GenerateResults(service, passwordsFilename, passwords, format);
+
+                    break;
+                case "-h": // Frequency-only mode.
+                    
+                    // Check limit parses as an integer.
+                    if (!int.TryParse(args[6], out var limit))
+                    {
+                        Console.WriteLine("Invalid limit provided.");
+                        return;
+                    }
+
+                    // Query file.
+                    var frequencyService = new LocalFilePwnedFrequencyExtractor(pwnedFilename);
+                    var frequencyResults = frequencyService.GetAbove(limit);
+
+                    // Output goes straight to console.
+                    foreach (var entry in frequencyResults)
+                    {
+                        Console.WriteLine(entry);
+                    }
+
+                    break;
+            }
+        }
+        
+        /// <summary>
+        /// Runs a whole file of passwords through some instance of Pwned Passwords.
+        /// </summary>
+        /// <param name="args">The arguments passed to the application.</param>
+        private static void BatchMode(string[] args)
+        {
+            // Check database file path was passed.
+            if (args.Length < 3)
+            {
+                Console.WriteLine("Passwords file must be specified.");
+                return;
+            }
+
+            // Read passwords file in.
+            var filename = args[2];
+            if (!File.Exists(filename))
+            {
+                Console.WriteLine($"Could not load passwords file at '{filename}'.");
+                return;
+            }
+            var passwords = FileUtils.ReadFileAsLines(filename);
+            
+            // Check mode was specified.
+            if (args.Length < 4)
+            {
+                Console.WriteLine("Mode must be specified (-a or -f).");
+                return;
+            }
 
             // Batch against API or file?
             switch (args[3])
             {
                 case "-a": // API mode.
-                    BatchApiMode(passwords, args);
+                    BatchApiMode(filename, passwords, args);
                     break;
                 case "-f": // File mode.
-                    BatchFileMode(passwords, args);
+                    BatchFileMode(filename, passwords, args);
                     break;
             }
         }
 
         static void Main(string[] args)
         {
-            //// We at least need a password list.
-            //if (args.Length < 1)
-            //{
-            //    Console.WriteLine("Usage: App <password_list> [format]");
-            //    return;
-            //}
+            // We at least need a mode.
+            if (args.Length < 1)
+            {
+                Console.WriteLine("Interactive: App -i");
+                Console.WriteLine("Batch: App -b <password_file> <-a | -f <pwned_db>> [format]");
+                return;
+            }
 
             switch (args[0])
             {
