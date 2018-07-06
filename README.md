@@ -36,7 +36,7 @@ This utility can be run in three different primary modes:
 After specifying interactive mode, pass one of the following options to specify a data source:
 
 * `-a`: Uses the official API. Use this option with consideration please.
-* `-f <pwned_passwords_db_file>`: Uses a local Pwned Password file. Plain text only, must not be archived.
+* `-f <pwned_passwords_db_file>`: Uses a local copy of Pwned Passwords. Plain text only, must not be archived.
 
 Example: Start interactive mode against the API:
 
@@ -54,7 +54,7 @@ ppexp -i -f pwned-passwords-2.0.txt
 After specifying batch mode, pass one of the following options to specify a data source:
 
 * `-a`: Uses the official API. Use this option with consideration please.
-* `-f <pwned_passwords_db_file>`: Uses a local Pwned Password file. Plain text only, must not be archived.
+* `-f <pwned_passwords_db_file>`: Uses a local copy of Pwned Passwords. Plain text only, must not be archived.
 
 Example: Run `passwords.txt` through the API, output in CSV format:
 
