@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -19,11 +20,25 @@ namespace PwnedApiWrapper.App
         /// The threshold number of passwords at which to warn the user about API usage.
         /// </summary>
         private const int WarnSizeLimit = 50;
-        
+
+        /// <summary>
+        /// Gets the version string for the application.
+        /// </summary>
+        /// <returns></returns>
+        private static string GetVersionString()
+        {
+            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            var fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+            return fileVersionInfo.FileVersion;
+        }
+
+        /// <summary>
+        /// Prints the help card for the application.
+        /// </summary>
         private static void PrintHelp()
         {
-            
-            Console.WriteLine(Properties.Resources.help_card);
+            // Write text file to console.
+            Console.WriteLine(Properties.Resources.help_card.Replace("%VERSION", GetVersionString()));
         }
 
         /// <summary>
