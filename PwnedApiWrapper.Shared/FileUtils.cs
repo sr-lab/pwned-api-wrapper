@@ -3,6 +3,9 @@ using System.IO;
 
 namespace PwnedApiWrapper.Shared
 {
+    /// <summary>
+    /// Contains file I/O helper methods.
+    /// </summary>
     public class FileUtils
     {
         /// <summary>

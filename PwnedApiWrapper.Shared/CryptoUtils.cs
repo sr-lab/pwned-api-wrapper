@@ -3,6 +3,9 @@ using System.Text;
 
 namespace PwnedApiWrapper.Shared
 {
+    /// <summary>
+    /// Contains cryptographic helper methods.
+    /// </summary>
     public class CryptoUtils
     {
         /// <summary>
