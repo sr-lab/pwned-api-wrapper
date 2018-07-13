@@ -1,5 +1,5 @@
 # Pwned Passwords API Wrapper
-Wraps the Pwned Passwords API (or, preferably, your local Pwned Passwords database) offering batch queries etc.
+Wraps the Pwned Passwords API (or, preferably, your local Pwned Passwords database) offering batch queries etc. from the command line.
 
 ## Overview
 This repository consists of several projects.
