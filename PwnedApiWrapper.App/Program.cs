@@ -55,7 +55,7 @@ namespace PwnedApiWrapper.App
             var permittedFormats = new[] { "plain", "coq" };
             if (args.Length > index && permittedFormats.Contains(args[index]))
             {
-                format = args[5];
+                format = args[index];
             }
 
             return format;
