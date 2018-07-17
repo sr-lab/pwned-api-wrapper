@@ -313,6 +313,33 @@ namespace PwnedApiWrapper.App
         }
 
         /// <summary>
+        /// Counts the total number of records in a local instance of Pwned Passwords.
+        /// </summary>
+        /// <param name="args">The command-line argments passed to the application.</param>
+        private static void CardinalityMode(string[] args)
+        {
+            // Check database file path was passed.
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Pwned Passwords database file must be specified.");
+                return;
+            }
+
+            // Check file exists.
+            var filename = args[1];
+            if (!File.Exists(filename))
+            {
+                Console.WriteLine($"Could not read Pwned Passwords database at '{filename}'.");
+                return;
+            }
+
+            // Pass output back to user.
+            var service = new LocalFilePwnedFrequencyExtractor(filename);
+            Console.WriteLine($"Computing cardinality of database at '{filename}'...");
+            Console.WriteLine($"{service.GetCardinality()} individual passwords found.");
+        }
+
+        /// <summary>
         /// Retrieves frequencies from a local instance of Pwned Passwords.
         /// </summary>
         /// <param name="args">The command-line arguments passed to the application.</param>
@@ -423,6 +450,11 @@ namespace PwnedApiWrapper.App
 
                     // Frequency only mode.
                     FrequencyMode(args);
+                    break;
+                case "-n":
+
+                    //Cardinality mode.
+                    CardinalityMode(args);
                     break;
                 case "-h":
 

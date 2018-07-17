@@ -79,5 +79,31 @@ namespace PwnedApiWrapper
             }
             return output;
         }
+
+        public long GetCardinality()
+        {
+            // Keep a running count.
+            long output = 0;
+
+            // Read file one line at a time, has to be buffered, file too big otherwise.
+            using (var reader = new BufferedStream(new FileStream(Path, FileMode.Open)))
+            {
+                // Lines are 63 bytes long (including line endings, which are Windows-style).
+                byte[] buffer = new byte[63];
+                while (reader.Read(buffer, 0, buffer.Length) != 0)
+                {
+                    // Decode and split along colon.
+                    var line = Encoding.ASCII.GetString(buffer);
+                    var splitter = line.Trim().Split(':');
+
+                    // Add frequency to output.
+                    if (splitter.Length == 2)
+                    {
+                        output += long.Parse(splitter[1]);
+                    }
+                }
+            }
+            return output;
+        }
     }
 }
